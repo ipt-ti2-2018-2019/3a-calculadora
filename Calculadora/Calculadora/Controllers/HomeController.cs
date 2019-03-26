@@ -12,6 +12,10 @@ namespace Calculadora.Controllers {
 
          // inicializar o código da ViewBag
          ViewBag.Resposta = "0";
+         // inicilizar as variáveis de sessão
+         Session["primeiroOperando"] = "";
+         Session["operador"] = "";
+         Session["limpaVisor"] = true;
 
          return View();
       }
@@ -35,14 +39,56 @@ namespace Calculadora.Controllers {
             case "9":
             case "0":
                // determinar se o VISOR tem apenas o 'zero'
-               if(resposta == "0") {   //  resposta.Equals("0")
+               if(resposta == "0" || (bool)Session["limpaVisor"]) {   //  resposta.Equals("0")
                   resposta = bt;
+                  Session["limpaVisor"] = false;
                }
                else {
                   resposta += bt; // resposta=resposta+bt
                }
                break;
-         }
+
+            // processar a escolha de um operador
+            case "+":
+            case "-":
+            case "x":
+            case ":":
+               if((string)Session["operador"] == "") {
+                  // se entrei aqui, é pq é a 1ª vez que se escolheu um 'operador'
+                  // guardar os dados da calculadora, para se poder executar mais tarde
+                  Session["primeiroOperando"] = visor;
+                  Session["operador"] = bt;
+                  Session["limpaVisor"] = true;
+               }
+               else{
+                  // agora já posso fazer a operação aritmética
+
+                  // recuperar os dados anteriormente guardados
+                  double operando1 = Convert.ToDouble(Session["primeiroOperando"]);
+                  string operador = (string)Session["operador"];
+
+                  // efetuar a operação aritmética
+                  switch (operador){
+                     case "+":
+                        resposta = operando1 + Convert.ToDouble(visor) + "";
+                        break;
+                     case "-":
+                        resposta = operando1 - Convert.ToDouble(visor) + "";
+                        break;
+                     case "x":
+                        resposta = operando1 * Convert.ToDouble(visor) + "";
+                        break;
+                     case ":":
+                        resposta = operando1 / Convert.ToDouble(visor) + "";
+                        break;
+                  }
+                  // guardar os dados gerados para a nova operação
+                  Session["primeiroOperando"] = resposta;
+                  Session["operador"] = bt;
+                  Session["limpaVisor"] = true;
+               }
+               break;
+         } // switch
 
          // devolver a 'resposta' para o visor do ecrã
          ViewBag.Resposta = resposta;
