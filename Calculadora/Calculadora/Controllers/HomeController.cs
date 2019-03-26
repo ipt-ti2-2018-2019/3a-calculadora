@@ -60,26 +60,40 @@ namespace Calculadora.Controllers {
                   Session["operador"] = bt;
                   Session["limpaVisor"] = true;
                }
-               else{
+               else {
                   // agora já posso fazer a operação aritmética
 
-                  // recuperar os dados anteriormente guardados
-                  double operando1 = Convert.ToDouble(Session["primeiroOperando"]);
+                  // preparar os dados para a operação
                   string operador = (string)Session["operador"];
+                  double operando1 = 0, operando2 = 0;
+                  try {
+                     operando1 = Convert.ToDouble(Session["primeiroOperando"]);
+                     operando2 = Convert.ToDouble(visor);
+                  }
+                  catch(Exception) {
+                     // se houve um erro, devo parar tudo e voltar à View
+                     // limpar a calculadora
+
+                     // preparar a msg a aparecer no visor
+                     ViewBag.Resposta = "Erro";
+                     // devolver controlo à View
+                     return View();
+                  }
+
 
                   // efetuar a operação aritmética
-                  switch (operador){
+                  switch(operador) {
                      case "+":
-                        resposta = operando1 + Convert.ToDouble(visor) + "";
+                        resposta = operando1 + operando2 + "";
                         break;
                      case "-":
-                        resposta = operando1 - Convert.ToDouble(visor) + "";
+                        resposta = operando1 - operando2 + "";
                         break;
                      case "x":
-                        resposta = operando1 * Convert.ToDouble(visor) + "";
+                        resposta = operando1 * operando2 + "";
                         break;
                      case ":":
-                        resposta = operando1 / Convert.ToDouble(visor) + "";
+                        resposta = operando1 / operando2 + "";
                         break;
                   }
                   // guardar os dados gerados para a nova operação
